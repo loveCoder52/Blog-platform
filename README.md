@@ -234,8 +234,8 @@ npm run dev
 ## 👤 Author
 
 **Your Name**
-- GitHub: [@your-username](https://github.com/your-username)
-- LinkedIn: [your-linkedin](https://linkedin.com/in/your-linkedin)
+- GitHub: [@your-username](https://github.com/loveCoder52)
+- LinkedIn: [your-linkedin](https://linkedin.com/in/love-sharma-dev)
 
 ---
 
