@@ -88,6 +88,17 @@ const userSchema = new Schema({
         default: "user"
     },
 
+    followers: [{
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        default: []
+    }],
+    following: [{
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        default: []
+    }],
+
     // ─────────────────────────────────────────
     // EMAIL VERIFICATION SYSTEM
     // ─────────────────────────────────────────
@@ -383,3 +394,198 @@ userSchema.methods.incrementLoginAttempts = async function () {
 // ─────────────────────────────────────────────────────────────
 
 export const User = mongoose.model("User", userSchema);
+
+
+
+
+
+
+
+
+
+
+// import mongoose, { Schema } from 'mongoose'
+// import bcrypt from 'bcryptjs'
+// import jwt from 'jsonwebtoken'
+// import crypto from 'crypto'
+
+
+// const userSchema = new Schema({
+//     username: {
+//         type: String,
+//         required: true,
+//         unique: true,
+//         lowercase: true,
+//         trim: true,
+//     },
+//     name: {
+//         type: String,
+//         required: true,
+//         maxLength: [50, "Name 50 se jyada nahi ho sakta"]
+//     },
+//     email: {
+//         type: String,
+//         required: [true, "Email is required"],
+//         unique: true,
+//         lowercase: true,
+//         trim: true,
+//         index: true,
+//         match: [/^\S+@\S+\.\S+$/, "Valid email do"],
+//     },
+//     password: {
+//         type: String,
+//         required: true,
+//         minLength: [8, "Password minimum 8 characters ka hona chahiye"],
+//         select: false,
+//     },
+//     avatar: {
+//         url: { type: String, default: "" },
+//         public_id: { type: String, default: "" }
+//     },
+//     bio: {
+//         type: String,
+//         maxLength: [200, "Bio 200 se zyada nahi ho sakti"],
+//         default: ""
+//     },
+//     role: {
+//         type: String,
+//         enum: ["user", "admin"],
+//         default: "user"
+//     },
+//     followers: [{
+//         type: Schema.Types.ObjectId,
+//         ref: "User",
+//         default: []
+//     }],
+//     following: [{
+//         type: Schema.Types.ObjectId,
+//         ref: "User",
+//         default: []
+//     }],
+//     isEmailVerified: {
+//         type: Boolean,
+//         default: false
+//     },
+//     emailVerificationToken: {
+//         type: String
+//     },
+//     emailVerificationExpiry: {
+//         type: Date
+//     },
+//     passwordResetToken: {
+//         type: String
+//     },
+//     passwordResetExpiry: {
+//         type: Date
+//     },
+//     refreshToken: {
+//         type: String,
+//         select: false
+//     },
+//     loginAttempts: {
+//         type: Number,
+//         default: 0
+//     },
+//     lockUntil: {
+//         type: Date
+//     },
+//     isDeleted: {
+//         type: Boolean,
+//         default: false
+//     },
+// }, {
+//     timestamps: true
+// })
+
+// userSchema.pre("save", async function () {
+//     if (!this.isModified("password")) return;
+//     this.password = await bcrypt.hash(this.password, 10);
+// })
+
+// userSchema.methods.comparePassword = async function (enteredPassword) {
+//     return await bcrypt.compare(enteredPassword, this.password)
+// }
+
+// userSchema.methods.generateAccessToken = function () {
+//     return jwt.sign(
+//         {
+//             _id: this._id,
+//             email: this.email,
+//             username: this.username
+//         },
+//         process.env.JWT_SECRET,
+//         {
+//             expiresIn: process.env.JWT_EXPIRY
+//         }
+//     )
+// }
+
+// userSchema.methods.generateRefreshToken = function () {
+//     return jwt.sign(
+//         {
+//             _id: this._id
+//         },
+//         process.env.JWT_SECRET,
+//         {
+//             expiresIn: "30d"
+//         }
+//     )
+// }
+
+// userSchema.methods.generatePasswordResetToken = function () {
+//     const resetToken = crypto.randomBytes(32).toString("hex")
+
+//     this.passwordResetToken = crypto
+//         .createHash("sha256")
+//         .update(resetToken)
+//         .digest("hex")
+
+//     this.passwordResetExpiry = Date.now() + 15 * 60 * 1000
+
+//     return resetToken
+// }
+
+// userSchema.methods.isLocked = function () {
+//     return this.lockUntil && this.lockUntil > Date.now()
+// }
+
+// userSchema.methods.incrementLoginAttempts = async function () {
+//     this.loginAttempts += 1
+
+//     if (this.loginAttempts >= 5) {
+//         this.lockUntil = Date.now() + 30 * 60 * 1000
+//     }
+
+//     await this.save()
+// }
+
+// export const User = mongoose.model("User", userSchema);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

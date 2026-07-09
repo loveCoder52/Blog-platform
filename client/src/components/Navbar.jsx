@@ -22,6 +22,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-4">
                     {user ? (
                         <>
+                            
                             <Link to="/create"
                                 className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-indigo-700">
                                 + New Blog
@@ -34,6 +35,10 @@ export default function Navbar() {
                                 className="text-sm text-gray-500 hover:text-red-500">
                                 Logout
                             </button>
+                            <Link to="/about"
+                                className="text-sm text-gray-600 hover:text-indigo-600">
+                                About
+                            </Link>
                         </>
                     ) : (
                         <>

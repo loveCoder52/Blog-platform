@@ -5,9 +5,9 @@ import toast from "react-hot-toast"
 
 export default function Login() {
     const { login } = useAuth()
-    const navigate  = useNavigate()
+    const navigate = useNavigate()
 
-    const [form, setForm]       = useState({ email: "", password: "" })
+    const [form, setForm] = useState({ email: "", password: "" })
     const [loading, setLoading] = useState(false)
 
     const handleChange = (e) => {
@@ -27,7 +27,16 @@ export default function Login() {
             toast.success("Login successful!")
             navigate("/")
         } catch (err) {
-            toast.error(err.response?.data?.message || "Login failed")
+            const msg = err.response?.data?.message || "Login failed"
+
+            // Email verify nahi hui — special message
+            if (err.response?.status === 403) {
+                toast.error("Email verify karo — inbox check karo! 📧", {
+                    duration: 5000
+                })
+            } else {
+                toast.error(msg)
+            }
         } finally {
             setLoading(false)
         }
@@ -75,6 +84,14 @@ export default function Login() {
                             placeholder="••••••••"
                             className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                         />
+                    </div>
+
+                    {/* Forgot Password */}
+                    <div className="flex justify-end">
+                        <Link to="/forgot-password"
+                            className="text-xs text-indigo-600 hover:underline">
+                            Password bhool gaye?
+                        </Link>
                     </div>
 
                     {/* Submit */}

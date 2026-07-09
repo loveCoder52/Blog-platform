@@ -10,11 +10,13 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     const user = await User.findOne({
         username: req.params.username,
         isDeleted: false
-    }).select("-password -refreshToken -emailVerificationToken -passwordResetToken")
+    })
+    .select("-password -refreshToken -emailVerificationToken -passwordResetToken")
+    .populate("followers", "_id")   // ← Sirf _id chahiye count ke liye
+    .populate("following", "_id")
 
     if (!user) throw new ApiError(404, "User nahi mila")
 
-    // Us user ke published blogs bhi bhejo
     const blogs = await Blog.find({
         author: user._id,
         isPublished: true,
@@ -27,7 +29,6 @@ export const getUserProfile = asyncHandler(async (req, res) => {
         new ApiResponse(200, { user, blogs }, "Profile fetched")
     )
 })
-
 // ── Update Profile ────────────────────────────────────────
 export const updateProfile = asyncHandler(async (req, res) => {
     const { name, bio } = req.body

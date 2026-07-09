@@ -7,6 +7,10 @@ import Register from "./pages/Register.jsx"
 import BlogDetail from "./pages/BlogDetail.jsx"
 import CreateBlog from "./pages/CreateBlog.jsx"
 import Profile from "./pages/Profile.jsx"
+import About from "./pages/About.jsx"
+import VerifyEmail from "./pages/VerifyEmail"
+import ForgotPassword from "./pages/ForgotPassword"
+import ResetPassword  from "./pages/ResetPassword"
 
 // Protected route — login nahi hai toh login pe bhejo
 const Protected = ({ children }) => {
@@ -26,12 +30,16 @@ export default function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/blog/:id" element={<BlogDetail />} />
                     <Route path="/u/:username" element={<Profile />} />
-                    <Route path="/create"     element={
+                    <Route path="/create" element={
                         <Protected><CreateBlog /></Protected>
-                    }/>
+                    } />
                     <Route path="/blog/:id/edit" element={
                         <Protected><CreateBlog /></Protected>
                     } />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/verify-email/:token" element={<VerifyEmail />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password/:token" element={<ResetPassword />} />
                 </Routes>
             </main>
         </div>

@@ -4,31 +4,40 @@ import { useAuth } from "../context/AuthContext"
 import api from "../api/axios"
 import BlogCard from "../components/BlogCard"
 import toast from "react-hot-toast"
+import FollowButton from "../components/FollowButton"
+import FollowListModal from "../components/FollowListModal"
 
 export default function Profile() {
     const { username } = useParams()
     const { user, fetchMe, logout } = useAuth()
     const navigate = useNavigate()
 
-    const [profile, setProfile]     = useState(null)
-    const [blogs, setBlogs]         = useState([])
-    const [loading, setLoading]     = useState(true)
+    const [profile, setProfile] = useState(null)
+    const [blogs, setBlogs] = useState([])
+    const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState("blogs")
 
     // Edit mode state
-    const [editing, setEditing]     = useState(false)
-    const [editForm, setEditForm]   = useState({ name: "", bio: "" })
-    const [avatar, setAvatar]       = useState(null)
+    const [editing, setEditing] = useState(false)
+    const [editForm, setEditForm] = useState({ name: "", bio: "" })
+    const [avatar, setAvatar] = useState(null)
     const [avatarPreview, setAvatarPreview] = useState(null)
-    const [saving, setSaving]       = useState(false)
+    const [saving, setSaving] = useState(false)
 
     // Password change state
-    const [pwForm, setPwForm]       = useState({
+    const [pwForm, setPwForm] = useState({
         oldPassword: "", newPassword: ""
     })
     const [pwLoading, setPwLoading] = useState(false)
 
     const isOwner = user?.username === username
+
+    const [followStats, setFollowStats] = useState({
+        followersCount: 0,
+        followingCount: 0
+    })
+    const [isFollowing, setIsFollowing] = useState(false)
+    const [modal, setModal] = useState(null)  // "followers" | "following" | null
 
     // Profile fetch karo
     useEffect(() => {
@@ -40,8 +49,20 @@ export default function Profile() {
                 setBlogs(res.data.data.blogs)
                 setEditForm({
                     name: res.data.data.user.name,
-                    bio:  res.data.data.user.bio || ""
+                    bio: res.data.data.user.bio || ""
                 })
+                // Profile fetch ke baad add karo — useEffect mein
+                setFollowStats({
+                    followersCount: res.data.data.user.followers?.length || 0,
+                    followingCount: res.data.data.user.following?.length || 0
+                })
+
+                // Kya main already follow kar raha hun?
+                if (user) {
+                    const amFollowing = res.data.data.user.followers
+                        ?.some(f => f._id === user._id)
+                    setIsFollowing(amFollowing)
+                }
             } catch {
                 toast.error("Profile nahi mili")
                 navigate("/")
@@ -69,7 +90,7 @@ export default function Profile() {
             setSaving(true)
             const formData = new FormData()
             formData.append("name", editForm.name)
-            formData.append("bio",  editForm.bio)
+            formData.append("bio", editForm.bio)
             if (avatar) formData.append("avatar", avatar)
 
             const res = await api.patch("/users/update/profile", formData, {
@@ -108,18 +129,22 @@ export default function Profile() {
         }
     }
 
+
+
+
+
     if (loading) return (
         <div className="max-w-2xl mx-auto animate-pulse space-y-4">
             <div className="flex gap-4 items-center mt-4">
-                <div className="w-20 h-20 rounded-full bg-gray-200"/>
+                <div className="w-20 h-20 rounded-full bg-gray-200" />
                 <div className="space-y-2 flex-1">
-                    <div className="h-5 bg-gray-200 rounded w-1/3"/>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"/>
+                    <div className="h-5 bg-gray-200 rounded w-1/3" />
+                    <div className="h-3 bg-gray-200 rounded w-1/2" />
                 </div>
             </div>
             <div className="space-y-3 mt-6">
-                {[1,2,3].map(i => (
-                    <div key={i} className="h-24 bg-gray-200 rounded-2xl"/>
+                {[1, 2, 3].map(i => (
+                    <div key={i} className="h-24 bg-gray-200 rounded-2xl" />
                 ))}
             </div>
         </div>
@@ -209,6 +234,44 @@ export default function Profile() {
                             <span>
                                 <strong className="text-gray-700">{blogs.length}</strong> blogs
                             </span>
+
+                            {/* Followers — click pe modal */}
+                            <button onClick={() => setModal("followers")}
+                                className="hover:text-indigo-600 transition">
+                                <strong className="text-gray-700">
+                                    {followStats.followersCount}
+                                </strong> followers
+                            </button>
+
+                            {/* Following — click pe modal */}
+                            <button onClick={() => setModal("following")}
+                                className="hover:text-indigo-600 transition">
+                                <strong className="text-gray-700">
+                                    {followStats.followingCount}
+                                </strong> following
+                            </button>
+                        </div>
+                        {/* Follow Button — sirf doosre ke profile pe */}
+                        {!isOwner && user && (
+                            <div className="mt-3">
+                                <FollowButton
+                                    targetUserId={profile._id}
+                                    initialFollowing={isFollowing}
+                                    onUpdate={(data) => {
+                                        setFollowStats({
+                                            followersCount: data.followersCount,
+                                            followingCount: data.followingCount
+                                        })
+                                        setIsFollowing(data.following)
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        {/* <div className="flex gap-4 mt-3 text-sm text-gray-400">
+                            <span>
+                                <strong className="text-gray-700">{blogs.length}</strong> blogs
+                            </span>
                             <span>
                                 <strong className="text-gray-700">
                                     {blogs.reduce((acc, b) => acc + (b.likes?.length || 0), 0)}
@@ -219,7 +282,8 @@ export default function Profile() {
                                     {blogs.reduce((acc, b) => acc + (b.views || 0), 0)}
                                 </strong> views
                             </span>
-                        </div>
+                        </div> */}
+
                     </div>
 
                     {/* Owner buttons */}
@@ -257,11 +321,10 @@ export default function Profile() {
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`flex-1 py-2 text-sm font-medium rounded-lg capitalize transition ${
-                            activeTab === tab
-                                ? "bg-white text-indigo-600 shadow-sm"
-                                : "text-gray-500 hover:text-gray-700"
-                        }`}>
+                        className={`flex-1 py-2 text-sm font-medium rounded-lg capitalize transition ${activeTab === tab
+                            ? "bg-white text-indigo-600 shadow-sm"
+                            : "text-gray-500 hover:text-gray-700"
+                            }`}>
                         {tab === "blogs" ? `📝 Blogs (${blogs.length})` : "⚙️ Settings"}
                     </button>
                 ))}
@@ -369,6 +432,15 @@ export default function Profile() {
                     </div>
 
                 </div>
+            )}
+
+            {/* Follow Modal */}
+            {modal && (
+                <FollowListModal
+                    userId={profile._id}
+                    type={modal}
+                    onClose={() => setModal(null)}
+                />
             )}
         </div>
     )
